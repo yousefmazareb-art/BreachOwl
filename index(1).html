@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BreachOwl // port scanner</title>
+<style>
+  :root { --bg:#0e1116; --panel:#161b22; --line:#30363d; --text:#e6edf3; --dim:#8b949e; --accent:#58a6ff; --ok:#3fb950; --err:#f85149; }
+  * { box-sizing: border-box; }
+  body { margin:0; padding:24px; background:var(--bg); color:var(--text); font-family: ui-monospace, Menlo, Consolas, monospace; line-height:1.5; }
+  main { max-width:640px; margin:0 auto; }
+  h1 { margin:0 0 4px; color:var(--accent); }
+  .sub { color:var(--dim); margin:0 0 20px; }
+  .card { background:var(--panel); border:1px solid var(--line); border-radius:6px; padding:18px; margin-bottom:16px; }
+  label { display:block; margin-bottom:6px; color:var(--dim); }
+  input[type=text] { width:100%; padding:10px; background:var(--bg); color:var(--text); border:1px solid var(--line); border-radius:4px; font:inherit; }
+  .check { display:flex; gap:8px; align-items:flex-start; margin:14px 0; color:var(--dim); }
+  button { padding:10px 16px; background:var(--accent); color:#0e1116; border:0; border-radius:4px; font:inherit; cursor:pointer; }
+  .error { color:var(--err); }
+  table { width:100%; border-collapse:collapse; margin-top:10px; }
+  th, td { text-align:left; padding:6px 8px; border-bottom:1px solid var(--line); }
+  .ok { color:var(--ok); }
+  .warn { font-size:12px; color:var(--dim); }
+</style>
+</head>
+<body>
+<main>
+  <h1>BreachOwl</h1>
+  <p class="sub">Simple port scanner. Checks six common ports.</p>
+
+  <form class="card" method="post" action="/scan">
+    <label for="target">Target hostname or IP</label>
+    <input id="target" name="target" type="text" maxlength="253" placeholder="scanme.nmap.org" required>
+    <div class="check">
+      <input id="authorized" name="authorized" type="checkbox" value="yes" required>
+      <label for="authorized" style="margin:0">I own this target or have written permission to scan it.</label>
+    </div>
+    <button type="submit">Scan</button>
+  </form>
+
+  {% if error %}
+  <div class="card error">{{ error }}</div>
+  {% endif %}
+
+  {% if scanned %}
+  <div class="card">
+    <div>Scan completed for <strong>{{ target }}</strong> ({{ ip }})</div>
+    {% if results %}
+    <table>
+      <tr><th>Port</th><th>Service</th><th>State</th></tr>
+      {% for r in results %}
+      <tr><td>{{ r.port }}</td><td>{{ r.service }}</td><td class="ok">open</td></tr>
+      {% endfor %}
+    </table>
+    {% else %}
+    <p>No open ports found among the common ports checked.</p>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  <p class="warn">Only scan systems you own or have explicit permission to test. Unauthorized scanning may be illegal.</p>
+</main>
+</body>
+</html>
